@@ -20,6 +20,9 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "cortex-debug.openocdPath": "D:\\Pico\\RaspberryPiPico\\openocd-branch-rp2040-f8w14ec-windows\\src\\openocd.exe",
     "files.associations": {
-        "loramacserializer.h": "c"
+        "loramacserializer.h": "c",
+        "lorawan.h": "c",
+        "rak11310.h": "c",
+        "stdlib.h": "c"
     }
 }

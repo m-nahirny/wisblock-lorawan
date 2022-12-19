@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "pico/lorawan.h"
+#include "rak11310/lorawan.h"
 
 #include "board.h"
 #include "rtc-board.h"
@@ -35,7 +35,7 @@
 #include "sx1276-board.h"
 #elif defined sx126x
 #include "sx126x-board.h"
-#include "pico/board-config.h"
+#include "rak11310/board-config.h"
 #endif
 
 #include "../../periodic-uplink-lpp/firmwareVersion.h"
@@ -362,7 +362,7 @@ int lorawan_send_cayenne_temperature(float data, uint8_t app_port, uint8_t chann
 
     CayenneLppReset( );
 
-    CayenneLppAddTemperature( channel++, data );
+    CayenneLppAddTemperature( channel, data );
 
     CayenneLppCopy( AppData.Buffer );
     AppData.BufferSize = CayenneLppGetSize( );
@@ -373,7 +373,7 @@ int lorawan_send_cayenne_temperature(float data, uint8_t app_port, uint8_t chann
         return -1;
     }
 
-    return channel;
+    return LORAMAC_HANDLER_SUCCESS;
 }
 
 int lorawan_receive(void* data, uint8_t data_len, uint8_t* app_port)

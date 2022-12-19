@@ -25,7 +25,7 @@
  */
 #include <stdlib.h>
 #include "utilities.h"
-#include "pico/board-config.h"
+#include "rak11310/board-config.h"
 #include "board.h"
 #include "delay.h"
 #include "radio.h"

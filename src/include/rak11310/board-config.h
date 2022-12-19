@@ -51,12 +51,6 @@ extern "C"
 #define RADIO_MOSI                                  11
 #define RADIO_MISO                                  12
 
-// #define RADIO_RESET                                 15
-
-// #define RADIO_NSS                                   3
-// #define RADIO_BUSY                                  2
-// #define RADIO_DIO_1                                 20
-
 #define RADIO_NSS                                   13
 #define RADIO_RESET                                 14
 #define RADIO_BUSY                                  15

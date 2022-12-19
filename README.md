@@ -18,7 +18,7 @@ Enable LoRaWAN communications on a RAK11310 WisBlock Core module. this module is
 | GPIO 15 | BUSY |
 | GPIO 29 | DIO1 |
 
-GPIO pins are configurable in examples or API.
+GPIO pins are configured in src/include/rak11310/board-config.h.
 
 ## Examples
 

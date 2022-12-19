@@ -15,26 +15,28 @@
 #include "hardware/gpio.h"
 
 #include "pico/stdlib.h"
-#include "pico/lorawan.h"
+#include "rak11310/lorawan.h"
+#include "rak11310/rak11310.h"
+#include "rak11310/board-config.h"
 
 // edit with LoRaWAN Node Region and OTAA settings 
 #include "config.h"
 
 // pin configuration for SX12xx radio module
-const struct lorawan_sx12xx_settings sx12xx_settings = {
+ const struct lorawan_sx12xx_settings sx12xx_settings = {
     .spi = {
         .inst = spi1,
-        .mosi = 11,
-        .miso = 12,
-        .sck  = 10,
-        .nss  = 13
+        .mosi = RADIO_MOSI,
+        .miso = RADIO_MISO,
+        .sck  = RADIO_SCLK,
+        .nss  = RADIO_NSS
     },
-    .reset = 14,
-    .busy = 15,
-    .dio1  = 20
+    .reset = RADIO_RESET,
+    .busy = RADIO_BUSY,
+    .dio1  = RADIO_DIO_1
 };
 
-// OTAA settings
+// // OTAA settings
 const struct lorawan_otaa_settings otaa_settings = {
     .device_eui   = LORAWAN_DEVICE_EUI,
     .app_eui      = LORAWAN_APP_EUI,
@@ -46,12 +48,6 @@ const struct lorawan_otaa_settings otaa_settings = {
 int receive_length = 0;
 uint8_t receive_buffer[242];
 uint8_t receive_port = 0;
-
-#define LED_GREEN 23
-#define LED_BLUE 24
-
-#define UART1TX 4
-#define UART1Rx 5
 
 char print_buf[200];
 
@@ -86,16 +82,16 @@ int main( void )
     // initialize stdio and wait for USB CDC connect
     stdio_init_all();
 
-    gpio_init(LED_GREEN);
-    gpio_set_dir(LED_GREEN, GPIO_OUT);
-    gpio_put(LED_GREEN, 1);
+    gpio_init(RAK11310_LED_GREEN);
+    gpio_set_dir(RAK11310_LED_GREEN, GPIO_OUT);
+    gpio_put(RAK11310_LED_GREEN, 1);
 
-    gpio_init(LED_BLUE);
-    gpio_set_dir(LED_BLUE, GPIO_OUT);
+    gpio_init(RAK11310_LED_BLUE);
+    gpio_set_dir(RAK11310_LED_BLUE, GPIO_OUT);
 
     uart_init(uart1, 115200);
-    gpio_set_function(UART1TX, GPIO_FUNC_UART);
-    gpio_set_function(UART1Rx, GPIO_FUNC_UART);
+    gpio_set_function(RAK11310_UART1TX, GPIO_FUNC_UART);
+    gpio_set_function(RAK11310_UART1RX, GPIO_FUNC_UART);
     
     sleep_ms(250);
     uart_puts(uart1, "\r\nWisblock LoRaWAN - Send Temperature\r\n");
@@ -136,16 +132,16 @@ int main( void )
     while (1) {
         // get the internal temperature
        float adc_temperature = internal_temperature_get();
-    // float adc_temperature = 1.23;
+
         sprintf(print_buf, "Temperature is %f\r\n", adc_temperature);
         uart_puts(uart1, print_buf);
-        channel = lorawan_send_cayenne_temperature(adc_temperature, 2, channel);
-        if (channel > 0) {
+        int status = lorawan_send_cayenne_temperature(adc_temperature, 2, channel);
+        if (status == 0) {
             uart_puts(uart1, "Message sent!\r\n");
             // Switch LED 1 ON
-            gpio_put(LED_BLUE, 1);
+            gpio_put(RAK11310_LED_BLUE, 1);
             sleep_ms(250);
-            gpio_put(LED_BLUE, 0);
+            gpio_put(RAK11310_LED_BLUE, 0);
         }
         else
             uart_puts(uart1, "Message send failed!\r\n");
@@ -163,9 +159,6 @@ int main( void )
                     uart_puts(uart1, print_buf);
                 }
                 uart_puts(uart1, "\r\n");
-
-                // the first byte of the received message controls the on board LED
-                gpio_put(PICO_DEFAULT_LED_PIN, receive_buffer[0]);
             }
         }
     }
