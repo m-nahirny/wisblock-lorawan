@@ -33,6 +33,9 @@
 #include "RegionUS915.h"
 #include "RegionBaseUS.h"
 
+#include <stdio.h>
+#include "pico/stdlib.h"
+
 // Definitions
 #define CHANNELS_MASK_SIZE              6
 
@@ -806,7 +809,6 @@ LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_
     RegionCommonIdentifyChannelsParam_t identifyChannelsParam;
     RegionCommonCountNbOfEnabledChannelsParams_t countChannelsParams;
     LoRaMacStatus_t status = LORAMAC_STATUS_NO_CHANNEL_FOUND;
-
     // Count 125kHz channels
     if( RegionCommonCountChannels( RegionNvmGroup1->ChannelsMaskRemaining, 0, 4 ) == 0 )
     { // Reactivate default channels

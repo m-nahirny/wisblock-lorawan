@@ -691,7 +691,6 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     RxDoneParams.Rssi = rssi;
     RxDoneParams.Snr = snr;
 
-uart_puts(uart1, "OnRadioRxDone\r\n");
     LoRaMacRadioEvents.Events.RxDone = 1;
 
     if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
@@ -812,8 +811,7 @@ static void ProcessRadioRxDone( void )
     PhyParam_t phyParam;
     LoRaMacCryptoStatus_t macCryptoStatus = LORAMAC_CRYPTO_ERROR;
 
-     uart_puts(uart1, "ProcessRadioRxDone\r\n");
-   LoRaMacMessageData_t macMsgData;
+    LoRaMacMessageData_t macMsgData;
     LoRaMacMessageJoinAccept_t macMsgJoinAccept;
     uint8_t *payload = RxDoneParams.Payload;
     uint16_t size = RxDoneParams.Size;
@@ -2620,9 +2618,11 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh )
             macCryptoStatus = LoRaMacCryptoPrepareJoinRequest( &MacCtx.TxMsg.Message.JoinReq );
             if( LORAMAC_CRYPTO_SUCCESS != macCryptoStatus )
             {
+    uart_puts(uart1, "LoRaMacCryptoPrepareJoinRequest - failed\r\n");
                 return LORAMAC_STATUS_CRYPTO_ERROR;
             }
             MacCtx.PktBufferLen = MacCtx.TxMsg.Message.JoinReq.BufSize;
+    uart_puts(uart1, "LoRaMacCryptoPrepareJoinRequest - succeeded\r\n");
             break;
         case LORAMAC_MSG_TYPE_DATA:
 
@@ -2927,9 +2927,6 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     txConfig.AntennaGain = Nvm.MacGroup2.MacParams.AntennaGain;
     txConfig.PktLen = MacCtx.PktBufferLen;
 
-    char print_buf[200];
-    sprintf(print_buf, "Data rate is %d, packet length is %d\r\n", txConfig.Datarate, txConfig.PktLen);
-    uart_puts(uart1, print_buf);
     RegionTxConfig( Nvm.MacGroup2.Region, &txConfig, &txPower, &MacCtx.TxTimeOnAir );
 
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
@@ -3488,9 +3485,6 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
         }
         else
         {
-            char print_buf[200];
-            sprintf(print_buf, "LoRaMacQueryTxPossible current possible payload size=%d, macCmdsSize=%d, size=%d\r\n", txInfo->CurrentPossiblePayloadSize, macCmdsSize, size);
-            uart_puts(uart1, print_buf);
            return LORAMAC_STATUS_LENGTH_ERROR;
         }
     }
@@ -4577,13 +4571,17 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
 
                 queueElement.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
 
+    uart_puts(uart1, "Starting LoRaMacMlmeRequest - sending join request\r\n");
+
                 status = SendReJoinReq( JOIN_REQ );
 
                 if( status != LORAMAC_STATUS_OK )
                 {
+    uart_puts(uart1, "Starting LoRaMacMlmeRequest - join request failed\r\n");
                     // Revert back the previous datarate ( mainly used for US915 like regions )
                     Nvm.MacGroup1.ChannelsDatarate = RegionAlternateDr( Nvm.MacGroup2.Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR_RESTORE );
                 }
+    uart_puts(uart1, "Starting LoRaMacMlmeRequest - join request sent\r\n");
             }
             else if( mlmeRequest->Req.Join.NetworkActivation == ACTIVATION_TYPE_ABP )
             {
@@ -4810,20 +4808,10 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
             }
         }
 
-        sprintf(print_buf, "LoRaMacMcpsRequest Sending %d bytes\r\nSending ", fBufferSize);
-        uart_puts(uart1, print_buf);
         uint8_t buf[255]; 
         memcpy1( buf, ( uint8_t* ) fBuffer, fBufferSize );
 
-        for (int i = 0; i < fBufferSize; i++) {
-            sprintf(print_buf, "%02x", buf[i]);
-            uart_puts(uart1, print_buf);
-        }
-        uart_puts(uart1, "\r\n");
-
         status = Send( &macHdr, fPort, fBuffer, fBufferSize );
-        sprintf(print_buf, "LoRaMacMcpsRequest Send status is %d\r\n", status);
-        uart_puts(uart1, print_buf);
         if( status == LORAMAC_STATUS_OK )
         {
             MacCtx.McpsConfirm.McpsRequest = request.Type;
@@ -4838,8 +4826,6 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     // Fill return structure
     mcpsRequest->ReqReturn.DutyCycleWaitTime = MacCtx.DutyCycleWaitTime;
 
-    sprintf(print_buf, "LoRaMacMcpsRequest return status is %d\r\n", status);
-    uart_puts(uart1, print_buf);
     return status;
 }
 

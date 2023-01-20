@@ -23,6 +23,19 @@
         "loramacserializer.h": "c",
         "lorawan.h": "c",
         "rak11310.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "stdio.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "ranges": "c",
+        "utility": "c",
+        "i2c.h": "c",
+        "optional": "c",
+        "ostream": "c",
+        "system_error": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c"
     }
 }

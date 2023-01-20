@@ -179,6 +179,22 @@ void RtcBkupWrite( uint32_t data0, uint32_t data1 );
 void RtcBkupRead( uint32_t* data0, uint32_t* data1 );
 
 /*!
+ * \brief Writes data to the RTC EEPROM at a specified address
+ *
+ * \param [IN] addr EEPROM address
+ * \param [IN] data Data to be written
+ */
+void RtcEEPROMWrite( uint8_t addr, uint8_t data );
+
+/*!
+ * \brief Reads data from the RTC EEPROM at a specified address
+ *
+ * \param [IN] addr EEPROM address
+ * \param [OUT] data Data to be read
+ */
+uint8_t RtcEEPROMRead( uint8_t addr );
+
+/*!
  * \brief Processes pending timer events
  */
 void RtcProcess( void );

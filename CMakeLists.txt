@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.12)
 # pico_sdk_import.cmake is a single file copied from this SDK
 # note: this must happen before project()
 include(pico_sdk_import.cmake)
+include(pico_extras_import.cmake)
 
 project(pico_lorwan)
 set(CMAKE_C_STANDARD 11)
@@ -83,8 +84,11 @@ target_sources(pico_loramac_node INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/src/boards/rp2040/gpio-board.c
     ${CMAKE_CURRENT_LIST_DIR}/src/boards/rp2040/rtc-board.c
     ${CMAKE_CURRENT_LIST_DIR}/src/boards/rp2040/spi-board.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/boards/rp2040/i2c-board.c
     # ${CMAKE_CURRENT_LIST_DIR}/src/boards/rp2040/sx1276-board.c
     ${CMAKE_CURRENT_LIST_DIR}/src/boards/rp2040/sx126x-board.c
+    # RTC board RAK12002
+    ${CMAKE_CURRENT_LIST_DIR}/src/boards/rp2040/RV3028.c
 )
 
 target_include_directories(pico_loramac_node INTERFACE
@@ -125,7 +129,7 @@ target_include_directories(pico_lorawan INTERFACE
     ${CMAKE_CURRENT_LIST_DIR}/src/include
 )
 
-target_link_libraries(pico_lorawan INTERFACE pico_loramac_node)
+target_link_libraries(pico_lorawan INTERFACE pico_loramac_node hardware_i2c)
 add_definitions(-Dsx126x)
 add_subdirectory("examples/default_dev_eui")
 # add_subdirectory("examples/hello_abp")

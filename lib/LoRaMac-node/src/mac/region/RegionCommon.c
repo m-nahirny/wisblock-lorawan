@@ -34,6 +34,9 @@
 #include "RegionCommon.h"
 #include "systime.h"
 
+#include <stdio.h>
+#include "pico/stdlib.h"
+
 #define BACKOFF_DC_1_HOUR                   100
 #define BACKOFF_DC_10_HOURS                 1000
 #define BACKOFF_DC_24_HOURS                 10000
@@ -110,6 +113,7 @@ static uint16_t SetMaxTimeCredits( Band_t* band, bool joined, SysTime_t elapsedT
 {
     uint16_t dutyCycle = band->DCycle;
     TimerTime_t maxCredits = DUTY_CYCLE_TIME_PERIOD;
+
     TimerTime_t elapsedTime = SysTimeToMs( elapsedTimeSinceStartup );
     SysTime_t timeDiff = { 0 };
 
@@ -182,7 +186,6 @@ static uint16_t UpdateTimeCredits( Band_t* band, bool joined, bool dutyCycleEnab
 {
     uint16_t dutyCycle = SetMaxTimeCredits( band, joined, elapsedTimeSinceStartup,
                                             dutyCycleEnabled, lastTxIsJoinRequest );
-
     if( joined == true )
     {
         // Apply a sliding window for the duty cycle with collection and speding
@@ -609,7 +612,7 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
         // Reset Aggregated time off
         *aggregatedTimeOff = 0;
 
-        // Update bands Time OFF
+       // Update bands Time OFF
         *nextTxDelay = RegionCommonUpdateBandTimeOff( identifyChannelsParam->CountNbOfEnabledChannelsParam->Joined,
                                                       identifyChannelsParam->CountNbOfEnabledChannelsParam->Bands,
                                                       identifyChannelsParam->MaxBands,

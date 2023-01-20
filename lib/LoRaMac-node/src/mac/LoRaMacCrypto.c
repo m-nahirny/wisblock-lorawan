@@ -41,8 +41,15 @@
 #include "LoRaMacSerializer.h"
 #include "LoRaMacCrypto.h"
 
+// in src/boards/rp2040
+#include "rtc-board.h"
+
 #include <stdio.h>
 #include "pico/stdlib.h"
+
+#define USE_RTC_NVM                     1
+
+#define DEVNONCE_EEPROM_ADDRESS 4
 
 /*
  * Frame direction definition for uplink communications
@@ -966,6 +973,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     }
     KeyIdentifier_t micComputationKeyID = NWK_KEY;
 
+    char print_buf[200];
     // Add device nonce
 #if ( USE_RANDOM_DEV_NONCE == 1 )
     uint32_t devNonce = 0;
@@ -977,9 +985,29 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
 //    SecureElementRandomNumber( &devNonce );
     CryptoNvm->DevNonce = devNonce;
 #else
+#if USE_RTC_NVM
+    uint8_t data1, data2; 
+
+    data1 = RtcEEPROMRead(DEVNONCE_EEPROM_ADDRESS);
+    data2 = RtcEEPROMRead(DEVNONCE_EEPROM_ADDRESS+1);
+
+    CryptoNvm->DevNonce = data1;
+    CryptoNvm->DevNonce = ((uint16_t)data1 << 8) | data2;
+#endif
     CryptoNvm->DevNonce++;
 #endif
+
+#if USE_RTC_NVM
+    data2 = (uint8_t)(CryptoNvm->DevNonce & 0xff);
+    data1 = (uint8_t)(CryptoNvm->DevNonce >> 8);
+    RtcEEPROMWrite(DEVNONCE_EEPROM_ADDRESS, data1);
+    RtcEEPROMWrite(DEVNONCE_EEPROM_ADDRESS+1, data2);
+#endif
+
     macMsg->DevNonce = CryptoNvm->DevNonce;
+
+    sprintf(print_buf, "devNonce is %d\r\n", macMsg->DevNonce);
+    uart_puts(uart1, print_buf);
 
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     // Derive lifetime session keys

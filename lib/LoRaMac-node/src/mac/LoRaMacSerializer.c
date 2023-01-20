@@ -21,6 +21,9 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ),
 #include "LoRaMacSerializer.h"
 #include "utilities.h"
 
+#include "pico/stdlib.h"
+#include <stdio.h>
+
 LoRaMacSerializerStatus_t LoRaMacSerializerJoinRequest( LoRaMacMessageJoinRequest_t* macMsg )
 {
     if( ( macMsg == 0 ) || ( macMsg->Buffer == 0 ) )

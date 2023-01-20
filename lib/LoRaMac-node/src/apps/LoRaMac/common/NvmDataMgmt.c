@@ -37,6 +37,8 @@
 #include "LoRaMac.h"
 #include "NvmDataMgmt.h"
 
+#include "pico/stdlib.h"
+
 /*!
  * Enables/Disables the context storage management storage.
  * Must be enabled for LoRaWAN 1.0.4 or later.
@@ -74,6 +76,9 @@ uint16_t NvmDataMgmtStore( void )
         return 0;
     }
 
+    /*
+    MN - store the entire nvm struct since eeprom needs to be written in 256 byte chunks and the indicidual elements will not align on these page boundaries
+
     // Crypto
     if( ( NvmNotifyFlags & LORAMAC_NVM_NOTIFY_FLAG_CRYPTO ) ==
         LORAMAC_NVM_NOTIFY_FLAG_CRYPTO )
@@ -91,7 +96,6 @@ uint16_t NvmDataMgmtStore( void )
                                sizeof( nvm->MacGroup1 ), offset );
     }
     offset += sizeof( nvm->MacGroup1 );
-
     // MacGroup2
     if( ( NvmNotifyFlags & LORAMAC_NVM_NOTIFY_FLAG_MAC_GROUP2 ) ==
         LORAMAC_NVM_NOTIFY_FLAG_MAC_GROUP2 )
@@ -100,7 +104,6 @@ uint16_t NvmDataMgmtStore( void )
                                sizeof( nvm->MacGroup2 ), offset );
     }
     offset += sizeof( nvm->MacGroup2 );
-
     // Secure element
     if( ( NvmNotifyFlags & LORAMAC_NVM_NOTIFY_FLAG_SECURE_ELEMENT ) ==
         LORAMAC_NVM_NOTIFY_FLAG_SECURE_ELEMENT )
@@ -109,7 +112,6 @@ uint16_t NvmDataMgmtStore( void )
                                offset );
     }
     offset += sizeof( nvm->SecureElement );
-
     // Region group 1
     if( ( NvmNotifyFlags & LORAMAC_NVM_NOTIFY_FLAG_REGION_GROUP1 ) ==
         LORAMAC_NVM_NOTIFY_FLAG_REGION_GROUP1 )
@@ -118,7 +120,6 @@ uint16_t NvmDataMgmtStore( void )
                                sizeof( nvm->RegionGroup1 ), offset );
     }
     offset += sizeof( nvm->RegionGroup1 );
-
     // Region group 2
     if( ( NvmNotifyFlags & LORAMAC_NVM_NOTIFY_FLAG_REGION_GROUP2 ) ==
         LORAMAC_NVM_NOTIFY_FLAG_REGION_GROUP2 )
@@ -127,7 +128,6 @@ uint16_t NvmDataMgmtStore( void )
                                sizeof( nvm->RegionGroup2 ), offset );
     }
     offset += sizeof( nvm->RegionGroup2 );
-
     // Class b
     if( ( NvmNotifyFlags & LORAMAC_NVM_NOTIFY_FLAG_CLASS_B ) ==
         LORAMAC_NVM_NOTIFY_FLAG_CLASS_B )
@@ -136,6 +136,12 @@ uint16_t NvmDataMgmtStore( void )
                                offset );
     }
     offset += sizeof( nvm->ClassB );
+    */
+
+    dataSize = NvmmWrite( ( uint8_t* ) &nvm, sizeof( LoRaMacNvmData_t ), 0 );
+    char print_buf[200];
+    sprintf(print_buf, "NvmDataMgmtStore nvm %d bytes\r\n", sizeof(LoRaMacNvmData_t));
+    uart_puts(uart1, print_buf);
 
     // Reset notification flags
     NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
@@ -205,6 +211,10 @@ uint16_t NvmDataMgmtRestore( void )
         return 0;
     }
     offset += sizeof( LoRaMacClassBNvmData_t );
+
+    // char print_buf[200];
+    // sprintf(print_buf, "NvmDataMgmtRestore attempting to restore %d bytes\r\n", sizeof( LoRaMacNvmData_t ));
+    // uart_puts(uart1, print_buf);
 
     if( NvmmRead( ( uint8_t* ) nvm, sizeof( LoRaMacNvmData_t ), 0 ) ==
                   sizeof( LoRaMacNvmData_t ) )

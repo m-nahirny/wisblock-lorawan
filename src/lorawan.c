@@ -46,6 +46,9 @@
 #include "LmHandlerMsgDisplay.h"
 #include "CayenneLpp.h"
 
+#include <stdio.h>
+#include "pico/stdlib.h"
+
 /*!
  * LoRaWAN default end-device class
  */
