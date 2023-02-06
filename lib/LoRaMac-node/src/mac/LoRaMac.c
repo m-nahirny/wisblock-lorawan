@@ -48,6 +48,8 @@
 
 #include "LoRaMac.h"
 
+#include "rtc-board.h"
+
 #include <stdio.h>
 #include "pico/stdlib.h"
 
@@ -691,6 +693,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     RxDoneParams.Rssi = rssi;
     RxDoneParams.Snr = snr;
 
+uart_puts(uart1, "OnRadioRxDone\r\n");
     LoRaMacRadioEvents.Events.RxDone = 1;
 
     if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
@@ -810,6 +813,7 @@ static void ProcessRadioRxDone( void )
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
     LoRaMacCryptoStatus_t macCryptoStatus = LORAMAC_CRYPTO_ERROR;
+uart_puts(uart1, "ProcessRadioRxDone\r\n");
 
     LoRaMacMessageData_t macMsgData;
     LoRaMacMessageJoinAccept_t macMsgJoinAccept;
@@ -876,6 +880,7 @@ static void ProcessRadioRxDone( void )
     switch( macHdr.Bits.MType )
     {
         case FRAME_TYPE_JOIN_ACCEPT:
+uart_puts(uart1, "FRAME_TYPE_JOIN_ACCEPT\r\n");
             // Check if the received frame size is valid
             if( size < LORAMAC_JOIN_ACCEPT_FRAME_MIN_SIZE )
             {
@@ -952,6 +957,7 @@ static void ProcessRadioRxDone( void )
             MacCtx.McpsIndication.McpsIndication = MCPS_CONFIRMED;
             // Intentional fall through
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
+uart_puts(uart1, "FRAME_TYPE_DATA_UNCONFIRMED_DOWN\r\n");
             // Check if the received payload size is valid
             getPhy.UplinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
             getPhy.Datarate = MacCtx.McpsIndication.RxDatarate;
@@ -960,6 +966,7 @@ static void ProcessRadioRxDone( void )
             if( ( MAX( 0, ( int16_t )( ( int16_t ) size - ( int16_t ) LORAMAC_FRAME_PAYLOAD_OVERHEAD_SIZE ) ) > ( int16_t )phyParam.Value ) ||
                 ( size < LORAMAC_FRAME_PAYLOAD_MIN_SIZE ) )
             {
+uart_puts(uart1, "LORAMAC_EVENT_INFO_STATUS_ERROR\r\n");
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
                 return;
@@ -971,6 +978,7 @@ static void ProcessRadioRxDone( void )
 
             if( LORAMAC_PARSER_SUCCESS != LoRaMacParserData( &macMsgData ) )
             {
+uart_puts(uart1, "LORAMAC_EVENT_INFO_STATUS_ERROR\r\n");
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
                 return;
@@ -1002,6 +1010,7 @@ static void ProcessRadioRxDone( void )
             FType_t fType;
             if( LORAMAC_STATUS_OK != DetermineFrameType( &macMsgData, &fType ) )
             {
+uart_puts(uart1, "LORAMAC_EVENT_INFO_STATUS_ERROR 1\r\n");
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
                 return;
@@ -1032,6 +1041,7 @@ static void ProcessRadioRxDone( void )
                                         ( macMsgData.FHDR.FCtrl.Bits.Ack != 0 ) ||
                                         ( macMsgData.FHDR.FCtrl.Bits.AdrAckReq != 0 ) ) )
             {
+uart_puts(uart1, "LORAMAC_EVENT_INFO_STATUS_ERROR 2\r\n");
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
                 return;
@@ -1045,11 +1055,13 @@ static void ProcessRadioRxDone( void )
                 {
                     // Catch the case of repeated downlink frame counter
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
+uart_puts(uart1, "LORAMAC_CRYPTO_FAIL_FCNT_DUPLICATED\r\n");
                 }
                 else
                 {
                     // Other errors
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+uart_puts(uart1, "LORAMAC_EVENT_INFO_STATUS_ERROR 3\r\n");
                 }
                 MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
                 PrepareRxDoneAbort( );
@@ -1061,11 +1073,13 @@ static void ProcessRadioRxDone( void )
             {
                 if( macCryptoStatus == LORAMAC_CRYPTO_FAIL_ADDRESS )
                 {
+uart_puts(uart1, "LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL\r\n");
                     // We are not the destination of this frame.
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
                 }
                 else
                 {
+uart_puts(uart1, "LORAMAC_EVENT_INFO_STATUS_MIC_FAIL\r\n");
                     // MIC calculation fail
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
                 }
@@ -1129,6 +1143,7 @@ static void ProcessRadioRxDone( void )
             switch( fType )
             {
                 case FRAME_TYPE_A:
+uart_puts(uart1, "FRAME_TYPE_A\r\n");
                 {  /* +----------+------+-------+--------------+
                     * | FOptsLen | Fopt | FPort |  FRMPayload  |
                     * +----------+------+-------+--------------+
@@ -1145,6 +1160,7 @@ static void ProcessRadioRxDone( void )
                     break;
                 }
                 case FRAME_TYPE_B:
+uart_puts(uart1, "FRAME_TYPE_B\r\n");
                 {  /* +----------+------+-------+--------------+
                     * | FOptsLen | Fopt | FPort |  FRMPayload  |
                     * +----------+------+-------+--------------+
@@ -1158,6 +1174,7 @@ static void ProcessRadioRxDone( void )
                     break;
                 }
                 case FRAME_TYPE_C:
+uart_puts(uart1, "FRAME_TYPE_C\r\n");
                 {  /* +----------+------+-------+--------------+
                     * | FOptsLen | Fopt | FPort |  FRMPayload  |
                     * +----------+------+-------+--------------+
@@ -1171,6 +1188,7 @@ static void ProcessRadioRxDone( void )
                     break;
                 }
                 case FRAME_TYPE_D:
+uart_puts(uart1, "FRAME_TYPE_D\r\n");
                 {  /* +----------+------+-------+--------------+
                     * | FOptsLen | Fopt | FPort |  FRMPayload  |
                     * +----------+------+-------+--------------+
@@ -1186,6 +1204,7 @@ static void ProcessRadioRxDone( void )
                     break;
                 }
                 default:
+uart_puts(uart1, "LORAMAC_EVENT_INFO_STATUS_ERROR 4\r\n");
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                     PrepareRxDoneAbort( );
                     break;
@@ -2190,6 +2209,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             }
             case SRV_MAC_DEVICE_TIME_ANS:
             {
+uart_puts(uart1, "ProcessMacCommand: SRV_MAC_DEVICE_TIME_ANS\r\n");
                 // The mote time can be updated only when the time is received in classA
                 // receive windows only.
                 if( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true )
@@ -2214,6 +2234,11 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     sysTime = gpsEpochTime;
                     // Add Unix to Gps epoch offset. The system time is based on Unix time.
                     sysTime.Seconds += UNIX_GPS_EPOCH_OFFSET;
+char print_buf[200];
+sprintf(print_buf, "Gateway Unix time is %d\r\n", sysTime.Seconds);
+uart_puts(uart1, print_buf);
+                    // user the received time to set the real time clock
+                    RtcSetUnixTime(sysTime.Seconds);
 
                     // Compensate time difference between Tx Done time and now
                     sysTimeCurrent = SysTimeGet( );
@@ -2618,11 +2643,9 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh )
             macCryptoStatus = LoRaMacCryptoPrepareJoinRequest( &MacCtx.TxMsg.Message.JoinReq );
             if( LORAMAC_CRYPTO_SUCCESS != macCryptoStatus )
             {
-    uart_puts(uart1, "LoRaMacCryptoPrepareJoinRequest - failed\r\n");
                 return LORAMAC_STATUS_CRYPTO_ERROR;
             }
             MacCtx.PktBufferLen = MacCtx.TxMsg.Message.JoinReq.BufSize;
-    uart_puts(uart1, "LoRaMacCryptoPrepareJoinRequest - succeeded\r\n");
             break;
         case LORAMAC_MSG_TYPE_DATA:
 
@@ -4620,12 +4643,15 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         }
         case MLME_DEVICE_TIME:
         {
+    uart_puts(uart1, "LoRaMacMlmeRequest - sending device time request\r\n");
             // LoRaMac will send this command piggy-pack
             status = LORAMAC_STATUS_OK;
             if( LoRaMacCommandsAddCmd( MOTE_MAC_DEVICE_TIME_REQ, macCmdPayload, 0 ) != LORAMAC_COMMANDS_SUCCESS )
             {
+    uart_puts(uart1, "LoRaMacMlmeRequest - device time request failed\r\n");
                 status = LORAMAC_STATUS_MAC_COMMAD_ERROR;
             }
+    uart_puts(uart1, "LoRaMacMlmeRequest - device time request send succeeded\r\n");
             break;
         }
         case MLME_PING_SLOT_INFO:
@@ -4711,10 +4737,12 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
 
     if( mcpsRequest == NULL )
     {
+        uart_puts(uart1, "LoRaMac status parameter invalid\r\n");
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
     if( LoRaMacIsBusy( ) == true )
     {
+        uart_puts(uart1, "LoRaMac is busy\r\n");
         return LORAMAC_STATUS_BUSY;
     }
 
@@ -4804,6 +4832,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
             }
             else
             {
+                uart_puts(uart1, "LoRaMac status parameter invalid 2\r\n");
                 return LORAMAC_STATUS_PARAMETER_INVALID;
             }
         }
@@ -4819,6 +4848,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         }
         else
         {
+            uart_puts(uart1, "LoRaMac send status not OK\r\n");
             MacCtx.NodeAckRequested = false;
         }
     }

@@ -139,9 +139,6 @@ uint16_t NvmDataMgmtStore( void )
     */
 
     dataSize = NvmmWrite( ( uint8_t* ) &nvm, sizeof( LoRaMacNvmData_t ), 0 );
-    char print_buf[200];
-    sprintf(print_buf, "NvmDataMgmtStore nvm %d bytes\r\n", sizeof(LoRaMacNvmData_t));
-    uart_puts(uart1, print_buf);
 
     // Reset notification flags
     NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
@@ -211,10 +208,6 @@ uint16_t NvmDataMgmtRestore( void )
         return 0;
     }
     offset += sizeof( LoRaMacClassBNvmData_t );
-
-    // char print_buf[200];
-    // sprintf(print_buf, "NvmDataMgmtRestore attempting to restore %d bytes\r\n", sizeof( LoRaMacNvmData_t ));
-    // uart_puts(uart1, print_buf);
 
     if( NvmmRead( ( uint8_t* ) nvm, sizeof( LoRaMacNvmData_t ), 0 ) ==
                   sizeof( LoRaMacNvmData_t ) )

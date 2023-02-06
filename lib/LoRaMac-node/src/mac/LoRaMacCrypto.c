@@ -41,7 +41,7 @@
 #include "LoRaMacSerializer.h"
 #include "LoRaMacCrypto.h"
 
-// in src/boards/rp2040
+// in src/boards
 #include "rtc-board.h"
 
 #include <stdio.h>

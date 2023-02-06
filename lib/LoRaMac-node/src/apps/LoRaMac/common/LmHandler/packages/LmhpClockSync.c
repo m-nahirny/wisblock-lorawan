@@ -22,6 +22,9 @@
 #include "LmHandler.h"
 #include "LmhpClockSync.h"
 
+#include <stdio.h>
+#include "pico/stdlib.h"
+
 /*!
  * LoRaWAN Application Layer Clock Synchronization Specification
  */
@@ -312,8 +315,10 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
 
 LmHandlerErrorStatus_t LmhpClockSyncAppTimeReq( void )
 {
+    uart_puts(uart1, "LmhpClockSyncAppTimeReq\r\n");
     if( LmHandlerIsBusy( ) == true )
     {
+        uart_puts(uart1, "LmHandlerIsBusy\r\n");
         return LORAMAC_HANDLER_ERROR;
     }
 
@@ -344,7 +349,8 @@ LmHandlerErrorStatus_t LmhpClockSyncAppTimeReq( void )
         // In case the network server supports this more precise command
         // this package will use DeviceTimeAns answer as clock synchronization
         // mechanism.
-        LmhpClockSyncPackage.OnDeviceTimeRequest( );
+    //    uart_puts(uart1, "OnDeviceTimeRequest\r\n");
+    //    LmhpClockSyncPackage.OnDeviceTimeRequest( );
     }
 
     SysTime_t curTime = SysTimeGet( );
@@ -368,5 +374,6 @@ LmHandlerErrorStatus_t LmhpClockSyncAppTimeReq( void )
         .Port = CLOCK_SYNC_PORT
     };
     LmhpClockSyncState.AppTimeReqPending = true;
+    uart_puts(uart1, "sending unconfirmed message\r\n");
     return LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
 }

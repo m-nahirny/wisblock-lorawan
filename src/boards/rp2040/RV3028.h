@@ -74,6 +74,8 @@ typedef enum {
         uint8_t is12HourMode();
         uint8_t isPM();
 
+        void setUnixTime(uint32_t unixTime);
+
         //time is always set as 24 hours time!
         void setTime(uint16_t year, uint8_t month, uint8_t weekday, uint8_t date, uint8_t hour, uint8_t minute, uint8_t second);
         //automatically sets the time

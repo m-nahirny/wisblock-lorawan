@@ -59,6 +59,8 @@ int lorawan_send_unconfirmed(const void* data, uint8_t data_len, uint8_t app_por
 
 int lorawan_send_cayenne_temperature(float data, uint8_t app_port, uint8_t channel);
 
+int lorawan_get_time();
+
 int lorawan_receive(void* data, uint8_t data_len, uint8_t* app_port);
 
 void lorawan_debug(bool debug);

@@ -334,6 +334,15 @@ LoRaMacRegion_t LmHandlerGetActiveRegion( void );
  */
 LmHandlerErrorStatus_t LmHandlerSetSystemMaxRxError( uint32_t maxErrorInMs );
 
+// MN Added
+
+/*!
+ * Gets the current network server time
+ *
+ * \retval currentRegion Current active region
+ */
+int LmHandlerGetTime( void );
+
 /*
  *=============================================================================
  * PACKAGES HANDLING

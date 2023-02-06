@@ -153,11 +153,25 @@ uint16_t getYear(){
 
 uint32_t getUnixTime(){
     uint32_t unixTime = 0;
-    unixTime |= ((uint32_t) readFromRegister(UNIX_TIME_ADDRESS));
-    unixTime |= ((uint32_t) readFromRegister(UNIX_TIME_ADDRESS + 1)) << 8;
-    unixTime |= ((uint32_t) readFromRegister(UNIX_TIME_ADDRESS + 2)) << 16;
-    unixTime |= ((uint32_t) readFromRegister(UNIX_TIME_ADDRESS + 3)) << 24;
+    uint8_t b1 = readFromRegister(UNIX_TIME_ADDRESS);
+    uint8_t b2 = readFromRegister(UNIX_TIME_ADDRESS + 1);
+    uint8_t b3 = readFromRegister(UNIX_TIME_ADDRESS + 2);
+    uint8_t b4 = readFromRegister(UNIX_TIME_ADDRESS + 3);
+    unixTime = (uint32_t) b1;
+    unixTime |= ((uint32_t) b2) << 8;
+    unixTime |= ((uint32_t) b3) << 16;
+    unixTime |= ((uint32_t) b4) << 24;
     return unixTime;
+}
+
+void setUnixTime(uint32_t unixTime)
+{
+    uint8_t time_array[4];
+    time_array[0] = (uint8_t) unixTime;
+    time_array[1] = (unixTime >> 8) & 0xFF;
+    time_array[2] = (unixTime >> 16) & 0xFF;
+    time_array[3] = (unixTime >> 24) & 0xFF;
+    writeToRegisters(UNIX_TIME_ADDRESS, time_array, 4);
 }
 
 uint8_t isDateModeForAlarm(){

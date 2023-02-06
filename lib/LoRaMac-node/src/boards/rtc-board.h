@@ -210,6 +210,10 @@ void RtcProcess( void );
  */
 TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature );
 
+// MN Added 2023-02-05
+void RtcSetUnixTime(uint32_t unixTime);
+uint32_t RtcGetUnixTime();
+
 #ifdef __cplusplus
 }
 #endif

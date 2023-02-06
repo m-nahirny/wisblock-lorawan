@@ -30,11 +30,10 @@ void RtcInit( void )
 
 uint32_t RtcGetCalendarTime( uint16_t *milliseconds )
 {
-    uint32_t now = to_ms_since_boot(get_absolute_time());
+    uint32_t now = getUnixTime();
 
-    *milliseconds = (now % 1000);
-
-    return (now / 1000);
+    *milliseconds = RtcTick2Ms( now );
+    return now;
 }
 
 uint32_t RtcGetTimerElapsedTime( void )
@@ -140,4 +139,14 @@ uint8_t RtcEEPROMRead( uint8_t addr )
 void RtcProcess( void )
 {
     // Not used on this platform.
+}
+
+void RtcSetUnixTime(uint32_t unixTime)
+{
+    setUnixTime(unixTime);
+}
+
+uint32_t RtcGetUnixTime()
+{
+    return getUnixTime();
 }

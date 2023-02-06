@@ -379,6 +379,11 @@ int lorawan_send_cayenne_temperature(float data, uint8_t app_port, uint8_t chann
     return LORAMAC_HANDLER_SUCCESS;
 }
 
+int lorawan_get_time()
+{
+    return LmHandlerGetTime();
+}
+
 int lorawan_receive(void* data, uint8_t data_len, uint8_t* app_port)
 {
     *app_port = AppRxData.Port;

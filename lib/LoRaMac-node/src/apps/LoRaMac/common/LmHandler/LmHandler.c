@@ -37,6 +37,9 @@
 #include "LmhpRemoteMcastSetup.h"
 #include "LmhpFragmentation.h"
 
+#include <stdio.h>
+#include "pico/stdlib.h"
+
 #ifndef ACTIVE_REGION
 
 #warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
@@ -450,6 +453,7 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
     status = LoRaMacQueryTxPossible( appData->BufferSize, &txInfo );
     if( status != LORAMAC_STATUS_OK )
     {
+        uart_puts(uart1, "LoRaMacQueryTxPossible failed\r\n");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
@@ -475,6 +479,7 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
     }
     else
     {
+        uart_puts(uart1, "LoRaMacMcpsRequest failed\r\n");
         return LORAMAC_HANDLER_ERROR;
     }
 }
@@ -483,7 +488,6 @@ static LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
 {
     LoRaMacStatus_t status;
     MlmeReq_t mlmeReq;
-
     mlmeReq.Type = MLME_DEVICE_TIME;
 
     status = LoRaMacMlmeRequest( &mlmeReq );
@@ -492,10 +496,12 @@ static LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
 
     if( status == LORAMAC_STATUS_OK )
     {
+uart_puts(uart1, "LmHandlerDeviceTimeReq success\r\n");
         return LORAMAC_HANDLER_SUCCESS;
     }
     else
     {
+uart_puts(uart1, "LmHandlerDeviceTimeReq failed\r\n");
         return LORAMAC_HANDLER_ERROR;
     }
 }
@@ -1005,4 +1011,13 @@ static void LmHandlerPackagesProcess( void )
             LmHandlerPackages[i]->Process( );
         }
     }
+}
+
+int LmHandlerGetTime()
+{
+    if (LmHandlerDeviceTimeReq() != LORAMAC_HANDLER_SUCCESS) {
+        return -1;
+    }
+
+    return LORAMAC_HANDLER_SUCCESS;
 }
