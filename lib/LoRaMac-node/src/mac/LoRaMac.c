@@ -50,6 +50,7 @@
 
 #include "rtc-board.h"
 
+#include <time.h>
 #include <stdio.h>
 #include "pico/stdlib.h"
 
@@ -2239,6 +2240,12 @@ sprintf(print_buf, "Gateway Unix time is %d\r\n", sysTime.Seconds);
 uart_puts(uart1, print_buf);
                     // user the received time to set the real time clock
                     RtcSetUnixTime(sysTime.Seconds);
+
+                    // the RTC unix time counter is completely independent of the calendar time so both need to be set if they will be used
+                    struct tm *localTime;
+                    time_t timeSeconds = sysTime.Seconds;
+                    localTime = localtime(&timeSeconds);
+                    RtcSetTime(1900+localTime->tm_year, 1+localTime->tm_mon, localTime->tm_mday, localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
 
                     // Compensate time difference between Tx Done time and now
                     sysTimeCurrent = SysTimeGet( );

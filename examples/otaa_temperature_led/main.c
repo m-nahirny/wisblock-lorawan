@@ -93,6 +93,15 @@ float internal_temperature_get()
     return adc_temperature;
 }
 
+void print_date_time()
+{
+    uint16_t year;
+    uint8_t month, date, hour, minute, second;
+
+    RtcGetTime(&year, &month, &date, &hour, &minute, &second);
+    sprintf(print_buf, "RTC time: %d-%02d-%02d %02d:%02d:%02d\r\n", year, month, date, hour, minute, second);
+    uart_puts(uart1, print_buf);
+}
 
 int main( void )
 {
@@ -154,6 +163,8 @@ int main( void )
     }
     uart_puts(uart1, "joined successfully!\r\n");
 
+    print_date_time();
+
     uint8_t channel = 0;
 
     internal_temperature_init();
@@ -165,6 +176,7 @@ int main( void )
         localTime = localtime(&unixTime);
         sprintf(print_buf, "UTC time: %d-%02d-%02d %02d:%02d:%02d\r\n", 1900+localTime->tm_year, 1+localTime->tm_mon, localTime->tm_mday, localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
         uart_puts(uart1, print_buf);
+        print_date_time();
 
         if (firstTime == 1) {
             firstTime = 0;

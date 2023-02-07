@@ -46,6 +46,7 @@
 #define EEPROM_DATA_ADDRESS 0x26
 #define EEPROM_COMMAND_ADDRESS 0x27
 
+#define EEPROM_BACKUP 0x37
 
 // enum TimerClockFrequency : uint8_t {
 //         Hz4096 = 0x00,

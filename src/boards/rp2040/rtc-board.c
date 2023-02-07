@@ -23,6 +23,10 @@ void RtcInit( void )
     // disable automatic refresh on the RTC NVM
     useEEPROM(1);
 
+    // enable the supercapacitor trickle charge
+    uint8_t backup = readEEPROMRegister(EEPROM_BACKUP);
+    writeEEPROMRegister(EEPROM_BACKUP, backup | 0x20);
+
     rtc_alarm_pool = alarm_pool_create(2, 16);
 
     RtcSetTimerContext();
@@ -149,4 +153,20 @@ void RtcSetUnixTime(uint32_t unixTime)
 uint32_t RtcGetUnixTime()
 {
     return getUnixTime();
+}
+
+void RtcSetTime(uint16_t year, uint8_t month, uint8_t date, uint8_t hour, uint8_t minute, uint8_t second)
+{
+    // don't care about weekday
+    setTime(year, month, 0, date, hour, minute, second);
+}
+
+void RtcGetTime(uint16_t *year, uint8_t *month, uint8_t *date, uint8_t *hour, uint8_t *minute, uint8_t *second)
+{
+    *year = getYear();
+    *month = getMonth();
+    *date = getDate();
+    *hour = getHour();
+    *minute = getMinute();
+    *second = getSecond();
 }

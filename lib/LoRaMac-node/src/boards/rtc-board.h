@@ -214,6 +214,9 @@ TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature );
 void RtcSetUnixTime(uint32_t unixTime);
 uint32_t RtcGetUnixTime();
 
+void RtcSetTime(uint16_t year, uint8_t month, uint8_t date, uint8_t hour, uint8_t minute, uint8_t second);
+void RtcGetTime(uint16_t *year, uint8_t *month, uint8_t *date, uint8_t *hour, uint8_t *minute, uint8_t *second);
+
 #ifdef __cplusplus
 }
 #endif
