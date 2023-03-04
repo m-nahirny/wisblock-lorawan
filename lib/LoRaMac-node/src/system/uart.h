@@ -118,6 +118,7 @@ typedef enum
     RTS_CTS_FLOW_CTRL
 }FlowCtrl_t;
 
+
 /*!
  * \brief Initializes the UART object and MCU peripheral
  *

@@ -56,9 +56,9 @@ void I2cMcuInit( I2c_t* obj, I2cId_t i2cId, PinNames scl, PinNames sda )
     gpio_pull_up(I2C1SCL);
 
     uint res = i2c_init(i2c_rak, 400 * 1000);
-    char print_buf[200];
-    sprintf(print_buf, "I2C rate is %d\r\n", res);
-    uart_puts(uart1, print_buf);
+    // char print_buf[200];
+    // sprintf(print_buf, "I2C rate is %d\r\n", res);
+    // uart_puts(uart1, print_buf);
 }
 
 void I2cMcuDeInit( I2c_t* obj )

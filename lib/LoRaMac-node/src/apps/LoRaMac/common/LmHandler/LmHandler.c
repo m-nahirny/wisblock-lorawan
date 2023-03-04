@@ -37,6 +37,8 @@
 #include "LmhpRemoteMcastSetup.h"
 #include "LmhpFragmentation.h"
 
+#include "se-identity.h"
+
 #include <stdio.h>
 #include "pico/stdlib.h"
 

@@ -10,6 +10,7 @@
 
 #include "spi-board.h"
 
+// RAK11310 SPI is 1
 void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss )
 {
     spi_init((spiId == 0) ? spi0 : spi1, 10 * 1000 * 1000);

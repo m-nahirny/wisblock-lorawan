@@ -41,6 +41,10 @@ struct lorawan_otaa_settings {
     const char* channel_mask;
 };
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 const char* lorawan_default_dev_eui(char* dev_eui);
 
 int lorawan_init_abp(const struct lorawan_sx12xx_settings* sx1276_settings, LoRaMacRegion_t region, const struct lorawan_abp_settings* abp_settings);
@@ -64,5 +68,9 @@ int lorawan_get_time();
 int lorawan_receive(void* data, uint8_t data_len, uint8_t* app_port);
 
 void lorawan_debug(bool debug);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

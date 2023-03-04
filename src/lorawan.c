@@ -207,7 +207,6 @@ const char* lorawan_default_dev_eui(char* dev_eui)
 
 static int lorawan_init(const struct lorawan_sx12xx_settings* sx12xx_settings, LoRaMacRegion_t region)
 {
-    RtcInit();
 #if defined sx1276    
     SpiInit(
         &SX1276.Spi,
@@ -249,20 +248,26 @@ static int lorawan_init(const struct lorawan_sx12xx_settings* sx12xx_settings, L
     SX126x.DIO1 = gpio_dio1;
     SX126x.Reset = gpio_reset;
     SX126x.Spi = spi1_t;
+    uart_puts(uart1, "LoRa SPI Init...");
     SpiInit( &SX126x.Spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    uart_puts(uart1, "done\r\n");
 
     SX126x.Spi.Nss.pin = sx12xx_settings->spi.nss;
     SX126x.Reset.pin = sx12xx_settings->reset;
     SX126x.DIO1.pin = sx12xx_settings->dio1;
 
+    uart_puts(uart1, "LoRa SX126xIo Init...");
     SX126xIoInit();
+    uart_puts(uart1, "done\r\n");
 #endif
     LmHandlerParams.Region = region;
 
+    uart_puts(uart1, "LoRa LmHandlerInit Init...");
     if ( LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams ) != LORAMAC_HANDLER_SUCCESS )
     {
         return -1;
     }
+    uart_puts(uart1, "done\r\n");
 
     // Set system maximum tolerated rx error in milliseconds
     LmHandlerSetSystemMaxRxError( 20 );

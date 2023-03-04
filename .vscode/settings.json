@@ -36,6 +36,10 @@
         "system_error": "c",
         "functional": "c",
         "tuple": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "timer.h": "c",
+        "loramac.h": "c",
+        "lmhpclocksync.h": "c",
+        "config.h": "c"
     }
 }

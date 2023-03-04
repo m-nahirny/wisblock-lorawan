@@ -34,7 +34,7 @@
  ******************************************************************************
  ******************************************************************************
  */
-#include "se-identity.h"
+// #include "se-identity.h"
 
 /*!
  * When set to 1 the application uses the Over-the-Air activation procedure

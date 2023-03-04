@@ -54,28 +54,6 @@
 #define RAK11310_DEFAULT_SPI_CSN_PIN 17
 #endif
 
-// pin configuration for SX12xx radio module
- const struct lorawan_sx12xx_settings sx12xx_settings = {
-    .spi = {
-        .inst = spi1,
-        .mosi = RADIO_MOSI,
-        .miso = RADIO_MISO,
-        .sck  = RADIO_SCLK,
-        .nss  = RADIO_NSS
-    },
-    .reset = RADIO_RESET,
-    .busy = RADIO_BUSY,
-    .dio1  = RADIO_DIO_1
-};
-
-// // OTAA settings
-const struct lorawan_otaa_settings otaa_settings = {
-    .device_eui   = LORAWAN_DEVICE_EUI,
-    .app_eui      = LORAWAN_APP_EUI,
-    .app_key      = LORAWAN_APP_KEY,
-    .channel_mask = LORAWAN_CHANNEL_MASK
-};
-
 // variables for receiving data
 int receive_length = 0;
 uint8_t receive_buffer[242];
@@ -134,48 +112,19 @@ int main( void )
     gpio_set_dir(RAK11310_LED_GREEN, GPIO_OUT);
     gpio_put(RAK11310_LED_GREEN, 1);
 
-    gpio_init(RAK11310_LED_BLUE);
-    gpio_set_dir(RAK11310_LED_BLUE, GPIO_OUT);
-
     uart_init(uart1, 115200);
     gpio_set_function(RAK11310_UART1TX, GPIO_FUNC_UART);
     gpio_set_function(RAK11310_UART1RX, GPIO_FUNC_UART);
     
     sleep_ms(250);
-    uart_puts(uart1, "\r\nWisblock LoRaWAN - Send Temperature\r\n");
+    uart_puts(uart1, "\r\nWisblock LoRaWAN - vMax\r\n");
     I2cMcuInit(&i2c_obj, i2c_id, scl, sda);
 
     // Start the Real time clock
     rtc_init();
 
-    //save values for later
-    uint scb_orig = scb_hw->scr;
-    uint clock0_orig = clocks_hw->sleep_en0;
-    uint clock1_orig = clocks_hw->sleep_en1;
-
-    // testing - SPI0
-
-    Gpio_t gpio_nss;
-    Spi_t spi0_t;
-    gpio_nss.pin = RAK11310_DEFAULT_SPI_CSN_PIN;
-    spi0_t.Nss = gpio_nss;
-// raspberry pi pico spi1
-    spi0_t.SpiId = SPI_1;
-    uart_puts(uart1, "Initializing SPI0 \r\n");
-    SpiInit( &spi0_t, SPI_1, RAK11310_DEFAULT_SPI_TX_PIN, RAK11310_DEFAULT_SPI_RX_PIN, RAK11310_DEFAULT_SPI_SCK_PIN, NC );
-
-    uart_puts(uart1, "Test SPI0...\r\n");
-    while (1) {
-        uart_puts(uart1, "writing...\r\n");
-        uint16_t bufOut = 0x00ab;
-        uint16_t bufIn;
-        bufIn = SpiInOut( &spi0_t, bufOut);
-        uart_puts(uart1, "wrote...\r\n");
-    }
-
-
     // uncomment next line to enable debug
-     //lorawan_debug(true);
+    //lorawan_debug(true);
 
     // initialize the LoRaWAN stack
     uart_puts(uart1, "Initilizating LoRaWAN ... \r\n");
